@@ -1,0 +1,16 @@
+stages:
+  create_dataset:
+    cmd: python src/generate_data.py
+    deps:
+      - src/generate_data.py
+    outs:
+      - data/raw_data.csv
+      
+  compute_metrics:
+    cmd: python src/process_data.py
+    deps:
+      - data/raw_data.csv
+      - src/process_data.py
+    metrics:
+      - output/metrics.json:
+          cache: false

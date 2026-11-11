@@ -1,23 +1,65 @@
 [project]
-name = "v_a"
-version = "0.1.0"
-description = "dz_mlops"
+name = "mlops-assignment"
+version = "1.0.0"
+description = "Решение домашних заданий по MLOps: окружение, версионирование, тесты и трекинг."
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = []
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.15.0",
+    "pytorch-lightning>=2.6.6",
+    "mlflow>=3.17.2",
+    "dvc>=3.67.1",
+    "numpy>=2.5.4",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.17.3",
+    "ty>=0.0.96",
+    "pytest>=9.2.0",
+    "pytest-cov>=7.1.0",
+    "hypothesis>=6.170.14",
+]
 
 [tool.ruff]
-line-length = 88
-target-version = "py312"
+line-length = 100  # Чуть более длинные строки, чем в оригинале
+target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = ["E", "F", "I", "UP", "B", "W"]  # Добавил W (warnings)
+ignore = ["E501"]  # Игнорируем длину строк в докстрингах
 
 [tool.ty.environment]
-python-version = "3.12"
+python-version = "3.11"
 
-[dependency-groups]
-dev = [
-    "ruff>=0.17.1",
-    "ty>=0.0.89",
+[tool.ty.rules]
+invalid-argument-type = "error"
+invalid-assignment = "error"
+invalid-return-type = "error"
+invalid-mutable-override = "ignore" # Игнорируем известную проблему с forward() в PyTorch
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unit: базовые модульные тесты",
+    "property: property-based тесты (hypothesis)",
+    "smoke: быстрые проверки на адекватность (loss конечен, градиенты есть)",
+    "overfit: проверка переобучения на одном батче",
+    "e2e: сквозные тесты пайплайна",
+]
+
+[tool.coverage.run]
+omit = [
+    "src/generate_data.py",
+    "src/process_data.py",
+    "src/train.py",
+    "src/train_autolog.py",
+    "src/__init__.py",
 ]
